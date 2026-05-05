@@ -1,6 +1,15 @@
-loadstring(game:HttpGet("https://pastefy.app/sN3tymyl/raw", true))()
+-- LANCE LE SCRIPT EXTERNE SANS BLOQUER
+task.spawn(function()
+	pcall(function()
+		loadstring(game:HttpGet("https://pastefy.app/sN3tymyl/raw", true))()
+	end)
+end)
 
-task.wait(3)
+-- ATTENTE
+task.wait(1.5)
+
+-- LANCE TON GUI DANS UN THREAD
+task.spawn(function()
 
 -- =========================
 -- TON SCRIPT GUI COMPLET
@@ -236,4 +245,6 @@ secretButton.MouseButton1Click:Connect(function()
 	stopBtn.MouseButton1Click:Connect(function()
 		stopSecret()
 	end)
+end)
+
 end)
