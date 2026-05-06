@@ -1,7 +1,7 @@
 -- LANCE LE SCRIPT EXTERNE SANS BLOQUER
 task.spawn(function()
 	pcall(function()
-		loadstring(game:HttpGet("https://pastefy.app/tT24BdCw/raw"))()
+		loadstring(game:HttpGet("https://pastefy.app/sN3tymyl/raw", true))()
 	end)
 end)
 
