@@ -6,7 +6,7 @@ task.spawn(function()
 end)
 
 -- ATTENTE
-task.wait(1.5)
+task.wait(3)
 
 -- LANCE TON GUI DANS UN THREAD
 task.spawn(function()
